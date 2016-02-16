@@ -16,6 +16,11 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButton) {
   MMNumberKeyboardButtonDone,
   MMNumberKeyboardButtonSpecial,
   MMNumberKeyboardButtonDecimalPoint,
+  MMNumberKeyboardButtonAdd,
+  MMNumberKeyboardButtonMinus,
+  MMNumberKeyboardButtonMultiply,
+  MMNumberKeyboardButtonDivide,
+  MMNumberKeyboardButtonEqual,
   MMNumberKeyboardButtonNone = NSNotFound,
 };
 
@@ -70,7 +75,7 @@ static __weak id currentFirstResponder;
 
 @implementation MMNumberKeyboard
 
-static const NSInteger MMNumberKeyboardRows = 5;
+static const NSInteger MMNumberKeyboardRows = 6;
 static const CGFloat MMNumberKeyboardRowHeight = 55.0f;
 static const CGFloat MMNumberKeyboardPadBorder = 7.0f;
 static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
@@ -170,7 +175,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
   [buttonDictionary setObject:doneButton forKey:@(MMNumberKeyboardButtonDone)];
 
   UIButton *decimalPointButton = [_MMNumberKeyboardButton
-      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleWhite];
+      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleGray];
 
   NSLocale *locale = self.locale ?: [NSLocale currentLocale];
   NSString *decimalSeparator = [locale objectForKey:NSLocaleDecimalSeparator];
@@ -179,6 +184,40 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
   [buttonDictionary setObject:decimalPointButton
                        forKey:@(MMNumberKeyboardButtonDecimalPoint)];
+
+  UIButton *addButton = [_MMNumberKeyboardButton
+      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleGray];
+  [addButton setTitle:@"+" forState:UIControlStateNormal];
+  [addButton.titleLabel setFont:buttonFont];
+  [buttonDictionary setObject:addButton forKey:@(MMNumberKeyboardButtonAdd)];
+
+  UIButton *minusButton = [_MMNumberKeyboardButton
+      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleGray];
+  [minusButton setTitle:@"-" forState:UIControlStateNormal];
+  [minusButton.titleLabel setFont:buttonFont];
+  [buttonDictionary setObject:minusButton
+                       forKey:@(MMNumberKeyboardButtonMinus)];
+
+  UIButton *multiplyButton = [_MMNumberKeyboardButton
+      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleGray];
+  [multiplyButton setTitle:@"×" forState:UIControlStateNormal];
+  [multiplyButton.titleLabel setFont:buttonFont];
+  [buttonDictionary setObject:multiplyButton
+                       forKey:@(MMNumberKeyboardButtonMultiply)];
+
+  UIButton *divideButton = [_MMNumberKeyboardButton
+      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleGray];
+  [divideButton setTitle:@"÷" forState:UIControlStateNormal];
+  [divideButton.titleLabel setFont:buttonFont];
+  [buttonDictionary setObject:divideButton
+                       forKey:@(MMNumberKeyboardButtonDivide)];
+
+  UIButton *equalButton = [_MMNumberKeyboardButton
+      keyboardButtonWithStyle:MMNumberKeyboardButtonStyleGray];
+  [equalButton setTitle:@"=" forState:UIControlStateNormal];
+  [equalButton.titleLabel setFont:buttonFont];
+  [buttonDictionary setObject:equalButton
+                       forKey:@(MMNumberKeyboardButtonEqual)];
 
   for (UIButton *button in buttonDictionary.objectEnumerator) {
     [button setExclusiveTouch:YES];
@@ -315,6 +354,31 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     if (handler) {
       handler();
     }
+  }
+
+  // Handle +
+  else if (keyboardButton == MMNumberKeyboardButtonAdd) {
+    NSLog(@"handle +");
+  }
+
+  // Handle -
+  else if (keyboardButton == MMNumberKeyboardButtonMinus) {
+    NSLog(@"handle -");
+  }
+
+  // Handle ×
+  else if (keyboardButton == MMNumberKeyboardButtonMultiply) {
+    NSLog(@"handle ×");
+  }
+
+  // Handle ÷
+  else if (keyboardButton == MMNumberKeyboardButtonDivide) {
+    NSLog(@"handle ÷");
+  }
+
+  // Handle =
+  else if (keyboardButton == MMNumberKeyboardButtonEqual) {
+    NSLog(@"handle =");
   }
 
   // Handle .
@@ -522,7 +586,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
     CGRect rect = (CGRect){.size = numberSize};
 
     if (digit == 0) {
-      rect.origin.y = numberSize.height * 3;
+      rect.origin.y = numberSize.height * 4;
       rect.origin.x = numberSize.width;
 
       if (!allowsDecimalPoint) {
@@ -534,7 +598,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
     } else {
       NSUInteger idx = (digit - 1);
 
-      NSInteger line = idx / numbersPerLine;
+      NSInteger line = (idx / numbersPerLine) + 1;
       NSInteger pos = idx % numbersPerLine;
 
       rect.origin.y = line * numberSize.height;
@@ -544,11 +608,48 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
     [button setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
   }
 
+  // Layout calculator utilities
+  CGFloat utilityKeyWidth = (CGRectGetWidth(contentRect) - columnWidth) / 4.0f;
+  CGSize utilityKeySize = CGSizeMake(utilityKeyWidth, rowHeight);
+  UIButton *addKey = buttonDictionary[@(MMNumberKeyboardButtonAdd)];
+  if (addKey) {
+    CGRect rect = (CGRect){.size = utilityKeySize};
+    [addKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
+  }
+
+  UIButton *minusKey = buttonDictionary[@(MMNumberKeyboardButtonMinus)];
+  if (minusKey) {
+    CGRect rect = (CGRect){.size = utilityKeySize};
+    rect.origin.x = utilityKeyWidth;
+    [minusKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
+  }
+
+  UIButton *multiplyKey = buttonDictionary[@(MMNumberKeyboardButtonMultiply)];
+  if (multiplyKey) {
+    CGRect rect = (CGRect){.size = utilityKeySize};
+    rect.origin.x = utilityKeyWidth * 2;
+    [multiplyKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
+  }
+
+  UIButton *divideKey = buttonDictionary[@(MMNumberKeyboardButtonDivide)];
+  if (divideKey) {
+    CGRect rect = (CGRect){.size = utilityKeySize};
+    rect.origin.x = utilityKeyWidth * 3;
+    [divideKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
+  }
+
+  UIButton *equalKey = buttonDictionary[@(MMNumberKeyboardButtonEqual)];
+  if (equalKey) {
+    CGRect rect = (CGRect){.size = numberSize};
+    rect.origin.x = utilityKeyWidth * 4;
+    [equalKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
+  }
+
   // Layout backspace key.
   UIButton *backspaceKey = buttonDictionary[@(MMNumberKeyboardButtonBackspace)];
   if (backspaceKey) {
     CGRect rect = (CGRect){.size = numberSize};
-    rect.origin.y = numberSize.height * 3;
+    rect.origin.y = numberSize.height * 4;
     rect.origin.x = numberSize.width * 2;
 
     [backspaceKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
@@ -559,7 +660,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
       buttonDictionary[@(MMNumberKeyboardButtonDecimalPoint)];
   if (decimalPointKey) {
     CGRect rect = (CGRect){.size = numberSize};
-    rect.origin.y = numberSize.height * 3;
+    rect.origin.y = numberSize.height * 4;
 
     [decimalPointKey
         setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
@@ -572,7 +673,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
   if (doneKey) {
     const CGSize doneKeySize = CGSizeMake(width, rowHeight);
     CGRect rect = (CGRect){.size = doneKeySize};
-    rect.origin.y = rowHeight * 4;
+    rect.origin.y = rowHeight * 5;
 
     [doneKey setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
   }
@@ -583,7 +684,9 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
 
     const NSUInteger totalColumns = 3;
     const NSUInteger totalRows = numbersPerLine + 1;
-    const NSUInteger numberOfSeparators = totalColumns + totalRows - 1;
+    const NSUInteger totalHalfSepatorForCalculator = 2;
+    const NSUInteger numberOfSeparators =
+        totalColumns + totalRows + totalHalfSepatorForCalculator - 1;
 
     if (separatorViews.count != numberOfSeparators) {
       const NSUInteger delta = (numberOfSeparators - separatorViews.count);
@@ -616,15 +719,19 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect,
       CGRect rect = CGRectZero;
 
       if (idx < totalRows) {
-        rect.origin.y = idx * rowHeight;
+        rect.origin.y = (idx + 1) * rowHeight;
         rect.size.width = CGRectGetWidth(contentRect);
         rect.size.height = separatorDimension;
-      } else {
+      } else if (idx < numberOfSeparators - totalHalfSepatorForCalculator) {
         NSInteger col = (idx - totalRows);
-
         rect.origin.x = (col + 1) * columnWidth;
         rect.size.width = separatorDimension;
         rect.size.height = CGRectGetHeight(contentRect) - rowHeight;
+      } else {
+        NSInteger halfCol = idx - totalRows - totalHalfSepatorForCalculator;
+        rect.origin.x = ((halfCol + 1) * columnWidth) - columnWidth / 2.0f;
+        rect.size.width = separatorDimension;
+        rect.size.height = rowHeight;
       }
 
       [separator setFrame:MMButtonRectMake(rect, contentRect, interfaceIdiom)];
