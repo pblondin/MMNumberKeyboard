@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class MMNumberKeyboard;
+@class MMCalculatorProcessor;
 
 /**
  *  The @c MMNumberKeyboardDelegate protocol defines the messages sent to a
@@ -27,8 +28,7 @@
  *  @return Returns	@c YES if the text should be inserted or @c NO if it
  * should not.
  */
-- (BOOL)numberKeyboard:(MMNumberKeyboard *)numberKeyboard
-      shouldInsertText:(NSString *)text;
+- (BOOL)numberKeyboard:(MMNumberKeyboard *)numberKeyboard shouldInsertText:(NSString *)text;
 
 /**
  *  Asks the delegate if the keyboard should process the pressing of the return
@@ -41,27 +41,72 @@
  */
 - (BOOL)numberKeyboardShouldReturn:(MMNumberKeyboard *)numberKeyboard;
 
+/**
+ *  Used jointly with the MMNumberKeyboardStyleCalculator.
+ *
+ *  @param numberKeyboard The keyboard whose return button was pressed.
+ *  @param result The caculated result
+ */
+- (void)numberKeyboard:(MMNumberKeyboard *)numberKeyboard didCalculateOperation:(NSString *)result;
+
 @end
+
+typedef NS_ENUM(NSUInteger, MMNumberKeyboardButton) {
+    MMNumberKeyboardButtonNumberMin,
+    MMNumberKeyboardButtonNumberMax = MMNumberKeyboardButtonNumberMin + 10, // Ten digits.
+    MMNumberKeyboardButtonBackspace,
+    MMNumberKeyboardButtonDone,
+    MMNumberKeyboardButtonSpecial,
+    MMNumberKeyboardButtonDecimalPoint,
+    MMNumberKeyboardButtonAdd,
+    MMNumberKeyboardButtonMinus,
+    MMNumberKeyboardButtonMultiply,
+    MMNumberKeyboardButtonDivide,
+    MMNumberKeyboardButtonEqual,
+    MMNumberKeyboardButtonClear,
+    MMNumberKeyboardButtonNone = NSNotFound,
+};
+
+/**
+ *  Specifies the style of a keyboard.
+ */
+typedef NS_ENUM(NSUInteger, MMNumberKeyboardStyle) {
+
+    /**
+     *  A simple style layout with numeric pad and done button behind
+     */
+    MMNumberKeyboardStyleSimple,
+
+    /**
+     *  An advanced layout with calculus operators and done button
+     */
+    MMNumberKeyboardStyleCalculator
+};
 
 /**
  *  Specifies the style of a keyboard button.
  */
 typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
-  /**
-   *  A white style button, such as those for the number keys.
-   */
-  MMNumberKeyboardButtonStyleWhite,
+    /**
+     *  A white style button, such as those for the number keys.
+     */
+    MMNumberKeyboardButtonStyleWhite,
 
-  /**
-   *  A gray style button, such as the backspace key.
-   */
-  MMNumberKeyboardButtonStyleGray,
+    /**
+     *  A gray style button, such as the backspace key.
+     */
+    MMNumberKeyboardButtonStyleGray,
 
-  /**
-   *  A done style button, for example, a button that completes some task and
-   * returns to the previous view.
-   */
-  MMNumberKeyboardButtonStyleDone
+    /**
+     *  A orange style button, such as the calculator key.
+     */
+    MMNumberKeyboardButtonStyleOrange,
+
+    /**
+     *  A done style button, for example, a button that completes some task and
+     * returns to the previous view.
+     */
+    MMNumberKeyboardButtonStyleDone
 };
 
 /**
@@ -87,9 +132,7 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
  *  @returns An initialized view object or @c nil if the view could not be
  * initialized.
  */
-- (instancetype)initWithFrame:(CGRect)frame
-               inputViewStyle:(UIInputViewStyle)inputViewStyle
-                       locale:(NSLocale *)locale;
+- (instancetype)initWithFrame:(CGRect)frame inputViewStyle:(UIInputViewStyle)inputViewStyle locale:(NSLocale *)locale;
 
 /**
  *  The receiver key input object. If @c nil the object at top of the responder
@@ -108,8 +151,7 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
  *  @param image   The image to display in the key.
  *  @param handler A handler block.
  */
-- (void)configureSpecialKeyWithImage:(UIImage *)image
-                       actionHandler:(dispatch_block_t)handler;
+- (void)configureSpecialKeyWithImage:(UIImage *)image actionHandler:(dispatch_block_t)handler;
 
 /**
  *  Configures the special key with an image and a target-action.
@@ -119,9 +161,7 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
  * message is sent.
  *  @param action A selector identifying an action message. It cannot be NULL.
  */
-- (void)configureSpecialKeyWithImage:(UIImage *)image
-                              target:(id)target
-                              action:(SEL)action;
+- (void)configureSpecialKeyWithImage:(UIImage *)image target:(id)target action:(SEL)action;
 
 /**
  *  If @c YES, the decimal separator key will be displayed.
@@ -131,11 +171,18 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
 @property(assign, nonatomic) BOOL allowsDecimalPoint;
 
 /**
- *  If @c YES, the calculator utilies key will be displayed.
+ *  The calculator processor
  *
- *  @note The default value of this property is @c NO.
+ *  @note You can configure the processor to use automatic decimal
  */
-@property(assign, nonatomic) BOOL allowsCalculatorUtilities;
+@property(strong, nonatomic) MMCalculatorProcessor *calculatorProcessor;
+
+/**
+ *  The keyboard layout to use.
+ *
+ *  @note The default value of this property is MMNumberKeyboardStyleSimple.
+ */
+@property(assign, nonatomic) MMNumberKeyboardStyle keyboardStyle;
 
 /**
  *  The visible title of the Return key.
