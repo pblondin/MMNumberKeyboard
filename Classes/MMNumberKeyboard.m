@@ -195,7 +195,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     [self setReturnKeyButtonStyle:MMNumberKeyboardButtonStyleDone];
 
     // Set default layout
-    self.keyboardStyle = MMNumberKeyboardStyleSimple;
+    self.keyboardType = MMNumberKeyboardTypeSimple;
 
     // Size to fit.
     [self sizeToFit];
@@ -254,7 +254,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     const NSInteger numberMin = MMNumberKeyboardButtonNumberMin;
     const NSInteger numberMax = MMNumberKeyboardButtonNumberMax;
 
-    BOOL keyboardInCalculatorMode = self.keyboardStyle == MMNumberKeyboardStyleCalculator;
+    BOOL keyboardTypeCalculator = self.keyboardType == MMNumberKeyboardTypeCalculator;
 
     // 0-9 numbers
     if (keyboardButton >= numberMin && keyboardButton < numberMax) {
@@ -267,7 +267,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
                 return;
             }
         }
-        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardTypeCalculator && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor storeOperand:string];
             [self.delegate numberKeyboard:self didCalculateOperation:result];
         } else {
@@ -277,7 +277,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
     // Handle backspace.
     else if (keyboardButton == MMNumberKeyboardButtonBackspace) {
-        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardTypeCalculator && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor deleteLastDigit];
             [self.delegate numberKeyboard:self didCalculateOperation:result];
         } else {
@@ -308,7 +308,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     // Handle +
     else if (keyboardButton == MMNumberKeyboardButtonAdd || keyboardButton == MMNumberKeyboardButtonMinus || keyboardButton == MMNumberKeyboardButtonMultiply ||
              keyboardButton == MMNumberKeyboardButtonDivide) {
-        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardTypeCalculator && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor storeOperator:keyboardButton];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
@@ -316,7 +316,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
     // Handle =
     else if (keyboardButton == MMNumberKeyboardButtonEqual) {
-        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardTypeCalculator && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor computeFinalValue];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
@@ -324,7 +324,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
     // Handle AC
     else if (keyboardButton == MMNumberKeyboardButtonClear) {
-        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardTypeCalculator && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor clearAll];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
@@ -340,7 +340,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
             }
         }
 
-        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardTypeCalculator && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor addDecimal];
             [delegate numberKeyboard:self didCalculateOperation:result];
         } else {
@@ -440,9 +440,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     return _calculatorProcessor;
 }
 
-- (void)setKeyboardStyle:(MMNumberKeyboardStyle)keyboardStyle {
-    if (keyboardStyle != _keyboardStyle) {
-        _keyboardStyle = keyboardStyle;
+- (void)setKeyboardType:(MMNumberKeyboardType)keyboardType {
+    if (keyboardType != _keyboardType) {
+        _keyboardType = keyboardType;
 
         [self setNeedsLayout];
     }
@@ -523,7 +523,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
                                         .size.height = CGRectGetHeight(bounds) - (spacing * 2.0f)};
 
     // Layout.
-    const CGFloat numberColumns = self.keyboardStyle == MMNumberKeyboardStyleSimple ? 3.0f : 4.0f;
+    const CGFloat numberColumns = self.keyboardType == MMNumberKeyboardTypeSimple ? 3.0f : 4.0f;
 
     const CGFloat columnWidth = CGRectGetWidth(contentRect) / numberColumns;
     const CGFloat rowHeight = MMNumberKeyboardRowHeight;
@@ -543,7 +543,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
         CGRect rect = (CGRect){.size = numberSize};
 
         if (digit == 0) {
-            if (self.keyboardStyle == MMNumberKeyboardStyleSimple) {
+            if (self.keyboardType == MMNumberKeyboardTypeSimple) {
                 rect.origin.y = numberSize.height * 3;
             } else {
                 rect.origin.y = numberSize.height * 4;
@@ -558,7 +558,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
         } else {
             NSUInteger idx = (digit - 1);
 
-            NSInteger startLine = self.keyboardStyle == MMNumberKeyboardStyleSimple ? 0 : 1;
+            NSInteger startLine = self.keyboardType == MMNumberKeyboardTypeSimple ? 0 : 1;
             NSInteger line = (idx / numbersPerLine) + startLine;
             NSInteger pos = idx % numbersPerLine;
 
@@ -570,7 +570,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     }
 
     // Calculator mode layout
-    if (self.keyboardStyle == MMNumberKeyboardStyleCalculator) {
+    if (self.keyboardType == MMNumberKeyboardTypeCalculator) {
 
         // Layout calculator utilities
         UIButton *acKey = buttonDictionary[@(MMNumberKeyboardButtonClear)];
@@ -622,7 +622,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     if (backspaceKey) {
         CGRect rect = (CGRect){.size = numberSize};
 
-        if (self.keyboardStyle == MMNumberKeyboardStyleSimple) {
+        if (self.keyboardType == MMNumberKeyboardTypeSimple) {
             rect.origin.x = numberSize.width * 2; // 3rd column
             rect.origin.y = rowHeight * 3;        // 4rd row
         } else {
@@ -636,12 +636,12 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     // Layout done key
     UIButton *doneKey = buttonDictionary[@(MMNumberKeyboardButtonDone)];
     if (doneKey) {
-        const CGSize doneKeySize = self.keyboardStyle == MMNumberKeyboardStyleSimple ? CGSizeMake(width, rowHeight) // Full width
-                                                                                     : CGSizeMake(numberSize.width, // Double numberSize height
-                                                                                                  rowHeight * 2);
+        const CGSize doneKeySize = self.keyboardType == MMNumberKeyboardTypeSimple ? CGSizeMake(width, rowHeight) // Full width
+                                                                                   : CGSizeMake(numberSize.width, // Double numberSize height
+                                                                                                rowHeight * 2);
         CGRect rect = (CGRect){.size = doneKeySize};
 
-        if (self.keyboardStyle == MMNumberKeyboardStyleSimple) {
+        if (self.keyboardType == MMNumberKeyboardTypeSimple) {
             rect.origin.y = rowHeight * 4; // 5th row
         } else {
             rect.origin.x = numberSize.width * 3; // 4rd colum
@@ -655,7 +655,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     UIButton *decimalPointKey = buttonDictionary[@(MMNumberKeyboardButtonDecimalPoint)];
     if (decimalPointKey) {
         CGRect rect = (CGRect){.size = numberSize};
-        if (self.keyboardStyle == MMNumberKeyboardStyleSimple) {
+        if (self.keyboardType == MMNumberKeyboardTypeSimple) {
             rect.origin.y = rowHeight * 3; // 4rd row
         } else {
             rect.origin.y = rowHeight * 4; // 5th row
@@ -670,7 +670,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     if (interfaceIdiom != UIUserInterfaceIdiomPad) {
         NSMutableArray *separatorViews = self.separatorViews;
 
-        const NSUInteger totalColumns = self.keyboardStyle == MMNumberKeyboardStyleSimple ? 3 : 4;
+        const NSUInteger totalColumns = self.keyboardType == MMNumberKeyboardTypeSimple ? 3 : 4;
         const NSUInteger totalRows = numbersPerLine + 1;
         const NSUInteger numberOfSeparators = totalColumns + totalRows - 1;
 
@@ -701,8 +701,8 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
           CGRect rect = CGRectZero;
 
           if (idx < totalRows) {
-              rect.origin.y = self.keyboardStyle == MMNumberKeyboardStyleSimple ? idx * rowHeight : (idx + 1) * rowHeight;
-              if (self.keyboardStyle == MMNumberKeyboardStyleCalculator && idx == 3 /* 4th horizontal separator */) {
+              rect.origin.y = self.keyboardType == MMNumberKeyboardTypeSimple ? idx * rowHeight : (idx + 1) * rowHeight;
+              if (self.keyboardType == MMNumberKeyboardTypeCalculator && idx == 3 /* 4th horizontal separator */) {
                   rect.size.width = columnWidth * 3;
               } else {
                   rect.size.width = CGRectGetWidth(contentRect);

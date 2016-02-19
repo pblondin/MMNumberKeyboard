@@ -42,7 +42,7 @@
 - (BOOL)numberKeyboardShouldReturn:(MMNumberKeyboard *)numberKeyboard;
 
 /**
- *  Used jointly with the MMNumberKeyboardStyleCalculator.
+ *  Used jointly with the MMNumberKeyboardTypeCalculator.
  *
  *  @param numberKeyboard The keyboard whose return button was pressed.
  *  @param result The caculated result
@@ -70,17 +70,17 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButton) {
 /**
  *  Specifies the style of a keyboard.
  */
-typedef NS_ENUM(NSUInteger, MMNumberKeyboardStyle) {
+typedef NS_ENUM(NSUInteger, MMNumberKeyboardType) {
 
     /**
-     *  A simple style layout with numeric pad and done button behind
+     *  A simple layout with numeric pad and done button behind
      */
-    MMNumberKeyboardStyleSimple,
+    MMNumberKeyboardTypeSimple,
 
     /**
      *  An advanced layout with calculus operators and done button
      */
-    MMNumberKeyboardStyleCalculator
+    MMNumberKeyboardTypeCalculator
 };
 
 /**
@@ -180,9 +180,9 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
 /**
  *  The keyboard layout to use.
  *
- *  @note The default value of this property is MMNumberKeyboardStyleSimple.
+ *  @note The default value of this property is MMNumberKeyboardTypeSimple.
  */
-@property(assign, nonatomic) MMNumberKeyboardStyle keyboardStyle;
+@property(assign, nonatomic) MMNumberKeyboardType keyboardType;
 
 /**
  *  The visible title of the Return key.
