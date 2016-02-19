@@ -26,7 +26,7 @@
     MMNumberKeyboard *keyboard = [[MMNumberKeyboard alloc] initWithFrame:CGRectZero inputViewStyle:UIInputViewStyleKeyboard];
     keyboard.allowsDecimalPoint = YES;
     keyboard.delegate = self;
-    keyboard.keyboardStyle = MMNumberKeyboardStyleCalculator;
+    keyboard.keyboardStyle = MMNumberKeyboardStyleSimple;
     //    keyboard.calculatorProcessor
 
     // Configure an example UITextField.

@@ -254,6 +254,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     const NSInteger numberMin = MMNumberKeyboardButtonNumberMin;
     const NSInteger numberMax = MMNumberKeyboardButtonNumberMax;
 
+    BOOL keyboardInCalculatorMode = self.keyboardStyle == MMNumberKeyboardStyleCalculator;
+
+    // 0-9 numbers
     if (keyboardButton >= numberMin && keyboardButton < numberMax) {
         NSNumber *number = @(keyboardButton - numberMin);
         NSString *string = number.stringValue;
@@ -264,7 +267,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
                 return;
             }
         }
-        if ([delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor storeOperand:string];
             [self.delegate numberKeyboard:self didCalculateOperation:result];
         } else {
@@ -274,7 +277,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
     // Handle backspace.
     else if (keyboardButton == MMNumberKeyboardButtonBackspace) {
-        if ([delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor deleteLastDigit];
             [self.delegate numberKeyboard:self didCalculateOperation:result];
         } else {
@@ -285,7 +288,6 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     // Handle done.
     else if (keyboardButton == MMNumberKeyboardButtonDone) {
         BOOL shouldReturn = YES;
-
         if ([delegate respondsToSelector:@selector(numberKeyboardShouldReturn:)]) {
             shouldReturn = [delegate numberKeyboardShouldReturn:self];
         }
@@ -306,7 +308,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     // Handle +
     else if (keyboardButton == MMNumberKeyboardButtonAdd || keyboardButton == MMNumberKeyboardButtonMinus || keyboardButton == MMNumberKeyboardButtonMultiply ||
              keyboardButton == MMNumberKeyboardButtonDivide) {
-        if ([delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor storeOperator:keyboardButton];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
@@ -314,7 +316,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
     // Handle =
     else if (keyboardButton == MMNumberKeyboardButtonEqual) {
-        if ([delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor computeFinalValue];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
@@ -322,7 +324,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
     // Handle AC
     else if (keyboardButton == MMNumberKeyboardButtonClear) {
-        if ([delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor clearAll];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
@@ -338,7 +340,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
             }
         }
 
-        if ([delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
+        if (keyboardInCalculatorMode && [delegate respondsToSelector:@selector(numberKeyboard:didCalculateOperation:)]) {
             NSString *result = [self.calculatorProcessor addDecimal];
             [delegate numberKeyboard:self didCalculateOperation:result];
         } else {
