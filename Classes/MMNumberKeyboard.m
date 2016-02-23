@@ -53,7 +53,7 @@ static __weak id currentFirstResponder;
 
 @implementation MMNumberKeyboard
 
-static const CGFloat MMNumberKeyboardRowHeight = 55.0f;
+static const CGFloat MMNumberKeyboardRowHeight = 54.0f;
 static const CGFloat MMNumberKeyboardPadBorder = 7.0f;
 static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
