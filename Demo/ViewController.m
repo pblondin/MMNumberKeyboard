@@ -35,7 +35,6 @@
     textField.placeholder = @"Type something…";
     textField.font = [UIFont systemFontOfSize:24.0f];
     textField.contentVerticalAlignment = UIControlContentVerticalAlignmentTop;
-    textField.keyboardAppearance = UIKeyboardAppearanceDark;
 
     self.textField = textField;
 
@@ -61,7 +60,6 @@
     [super viewDidLayoutSubviews];
 
     CGRect bounds = (CGRect){.size = self.view.bounds.size};
-
     CGRect contentRect = UIEdgeInsetsInsetRect(bounds, (UIEdgeInsets){
                                                            .top = self.topLayoutGuide.length, .bottom = self.bottomLayoutGuide.length,
                                                        });

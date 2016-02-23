@@ -53,7 +53,7 @@ static __weak id currentFirstResponder;
 
 @implementation MMNumberKeyboard
 
-static const NSInteger MMNumberKeyboardRows = 5;
+static const NSInteger MMNumberKeyboardRows = 4;
 static const CGFloat MMNumberKeyboardRowHeight = 55.0f;
 static const CGFloat MMNumberKeyboardPadBorder = 7.0f;
 static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
@@ -440,14 +440,6 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     return _calculatorProcessor;
 }
 
-- (void)setKeyboardType:(MMNumberKeyboardType)keyboardType {
-    if (keyboardType != _keyboardType) {
-        _keyboardType = keyboardType;
-
-        [self setNeedsLayout];
-    }
-}
-
 - (void)setReturnKeyTitle:(NSString *)title {
     if (![title isEqualToString:self.returnKeyTitle]) {
         UIButton *button = self.buttonDictionary[@(MMNumberKeyboardButtonDone)];
@@ -471,6 +463,22 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
 - (NSString *)defaultReturnKeyTitle {
     return UIKitLocalizedString(@"Done");
+}
+
+- (void)setKeyboardType:(MMNumberKeyboardType)keyboardType {
+    if (keyboardType != _keyboardType) {
+        _keyboardType = keyboardType;
+
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setKeyboardAppeareance:(MMNumberKeyboardAppeareance)keyboardAppeareance {
+    if (keyboardAppeareance != _keyboardAppeareance) {
+        _keyboardAppeareance = keyboardAppeareance;
+
+        [self setNeedsLayout];
+    }
 }
 
 - (void)setReturnKeyButtonStyle:(MMNumberKeyboardButtonStyle)style {
@@ -523,8 +531,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
                                         .size.height = CGRectGetHeight(bounds) - (spacing * 2.0f)};
 
     // Layout.
-    const CGFloat numberColumns = self.keyboardType == MMNumberKeyboardTypeSimple ? 3.0f : 4.0f;
-
+    const CGFloat numberColumns = 4.0f;
     const CGFloat columnWidth = CGRectGetWidth(contentRect) / numberColumns;
     const CGFloat rowHeight = MMNumberKeyboardRowHeight;
 
@@ -533,7 +540,6 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     // Layout numbers.
     const NSInteger numberMin = MMNumberKeyboardButtonNumberMin;
     const NSInteger numberMax = MMNumberKeyboardButtonNumberMax;
-
     const NSInteger numbersPerLine = 3;
 
     for (MMNumberKeyboardButton key = numberMin; key < numberMax; key++) {
@@ -636,13 +642,13 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     // Layout done key
     UIButton *doneKey = buttonDictionary[@(MMNumberKeyboardButtonDone)];
     if (doneKey) {
-        const CGSize doneKeySize = self.keyboardType == MMNumberKeyboardTypeSimple ? CGSizeMake(width, rowHeight) // Full width
-                                                                                   : CGSizeMake(numberSize.width, // Double numberSize height
+        const CGSize doneKeySize = self.keyboardType == MMNumberKeyboardTypeSimple ? CGSizeMake(numberSize.width, rowHeight * 4) // Full height
+                                                                                   : CGSizeMake(numberSize.width,                // Double numberSize height
                                                                                                 rowHeight * 2);
         CGRect rect = (CGRect){.size = doneKeySize};
 
         if (self.keyboardType == MMNumberKeyboardTypeSimple) {
-            rect.origin.y = rowHeight * 4; // 5th row
+            rect.origin.x = numberSize.width * 3; // 4th column
         } else {
             rect.origin.x = numberSize.width * 3; // 4rd colum
             rect.origin.y = rowHeight * 3;        // 4rd row
@@ -702,11 +708,7 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
 
           if (idx < totalRows) {
               rect.origin.y = self.keyboardType == MMNumberKeyboardTypeSimple ? idx * rowHeight : (idx + 1) * rowHeight;
-              if (self.keyboardType == MMNumberKeyboardTypeCalculator && idx == 3 /* 4th horizontal separator */) {
-                  rect.size.width = columnWidth * 3;
-              } else {
-                  rect.size.width = CGRectGetWidth(contentRect);
-              }
+              rect.size.width = columnWidth * 3;
               rect.size.height = separatorDimension;
           } else if (idx < numberOfSeparators) {
               NSInteger col = (idx - totalRows);

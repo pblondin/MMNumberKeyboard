@@ -68,7 +68,7 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButton) {
 };
 
 /**
- *  Specifies the style of a keyboard.
+ *  Specifies the type of a keyboard.
  */
 typedef NS_ENUM(NSUInteger, MMNumberKeyboardType) {
 
@@ -81,6 +81,22 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardType) {
      *  An advanced layout with calculus operators and done button
      */
     MMNumberKeyboardTypeCalculator
+};
+
+/**
+ *  Specifies the appeareance of a keyboard.
+ */
+typedef NS_ENUM(NSUInteger, MMNumberKeyboardAppeareance) {
+
+    /**
+     *  Default value
+     */
+    MMNumberKeyboardAppeareanceLight,
+
+    /**
+     *  Dark appeareance
+     */
+    MMNumberKeyboardAppeareanceDark
 };
 
 /**
@@ -178,6 +194,13 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
 @property(strong, nonatomic) MMCalculatorProcessor *calculatorProcessor;
 
 /**
+ *  The visible title of the Return key.
+ *
+ *  @note The default visible title of the Return key is “Done”.
+ */
+@property(copy, nonatomic) NSString *returnKeyTitle;
+
+/**
  *  The keyboard layout to use.
  *
  *  @note The default value of this property is MMNumberKeyboardTypeSimple.
@@ -185,11 +208,11 @@ typedef NS_ENUM(NSUInteger, MMNumberKeyboardButtonStyle) {
 @property(assign, nonatomic) MMNumberKeyboardType keyboardType;
 
 /**
- *  The visible title of the Return key.
+ *  The keyboard appearace.
  *
- *  @note The default visible title of the Return key is “Done”.
+ *  @note The default value of this property is MMNumberKeyboardAppeareanceLight.
  */
-@property(copy, nonatomic) NSString *returnKeyTitle;
+@property(assign, nonatomic) MMNumberKeyboardAppeareance keyboardAppeareance;
 
 /**
  *  The button style of the Return key.
