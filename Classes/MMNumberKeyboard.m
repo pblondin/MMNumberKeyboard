@@ -53,7 +53,6 @@ static __weak id currentFirstResponder;
 
 @implementation MMNumberKeyboard
 
-static const NSInteger MMNumberKeyboardRows = 4;
 static const CGFloat MMNumberKeyboardRowHeight = 55.0f;
 static const CGFloat MMNumberKeyboardPadBorder = 7.0f;
 static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
@@ -468,7 +467,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 - (void)setKeyboardType:(MMNumberKeyboardType)keyboardType {
     if (keyboardType != _keyboardType) {
         _keyboardType = keyboardType;
-
+        [self sizeToFit];
         [self setNeedsLayout];
     }
 }
@@ -725,7 +724,8 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
 - (CGSize)sizeThatFits:(CGSize)size {
     const UIUserInterfaceIdiom interfaceIdiom = UI_USER_INTERFACE_IDIOM();
     const CGFloat spacing = (interfaceIdiom == UIUserInterfaceIdiomPad) ? MMNumberKeyboardPadBorder : 0.0f;
-    size.height = MMNumberKeyboardRowHeight * MMNumberKeyboardRows + (spacing * 2.0f);
+    const NSInteger numberKeyboardRows = self.keyboardType == MMNumberKeyboardTypeSimple ? 4 : 5;
+    size.height = MMNumberKeyboardRowHeight * numberKeyboardRows + (spacing * 2.0f);
 
     if (size.width == 0.0f) {
         size.width = [UIScreen mainScreen].bounds.size.width;
