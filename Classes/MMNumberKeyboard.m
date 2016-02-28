@@ -204,6 +204,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 - (BOOL)enablesReturnKeyAutomatically {
     // Get first responder.
     id<UIKeyInput> keyInput = self.keyInput;
+    if (!keyInput) {
+        return NO;
+    }
 
     BOOL enabled = NO;
     if ([self.keyInput isKindOfClass:[UITextField class]]) {
@@ -550,6 +553,14 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
 #define MMRound roundf
 #endif
 
+- (void)didMoveToWindow {
+    [super didMoveToWindow];
+
+    if ([self enablesReturnKeyAutomatically]) {
+        ((UIButton *)self.buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = ![self isInputEmpty];
+    }
+}
+
 - (void)layoutSubviews {
     [super layoutSubviews];
 
@@ -557,8 +568,8 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
 
     NSDictionary *buttonDictionary = self.buttonDictionary;
 
-    if ([self enablesReturnKeyAutomatically] && [self isInputEmpty]) {
-        ((UIButton *)buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = NO;
+    if ([self enablesReturnKeyAutomatically]) {
+        ((UIButton *)buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = ![self isInputEmpty];
     }
 
     // Settings.
