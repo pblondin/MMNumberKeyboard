@@ -126,7 +126,6 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     UIButton *doneButton = [_MMNumberKeyboardButton keyboardButtonWithStyle:MMNumberKeyboardButtonStyleDone];
     [doneButton.titleLabel setFont:doneButtonFont];
     [doneButton setTitle:UIKitLocalizedString(@"Done") forState:UIControlStateNormal];
-
     [buttonDictionary setObject:doneButton forKey:@(MMNumberKeyboardButtonDone)];
 
     UIButton *decimalPointButton = [_MMNumberKeyboardButton keyboardButtonWithStyle:MMNumberKeyboardButtonStyleWhite];
@@ -202,6 +201,34 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
 
 #pragma mark - Input.
 
+- (BOOL)enablesReturnKeyAutomatically {
+    // Get first responder.
+    id<UIKeyInput> keyInput = self.keyInput;
+
+    BOOL enabled = NO;
+    if ([self.keyInput isKindOfClass:[UITextField class]]) {
+        enabled = ((UITextField *)keyInput).enablesReturnKeyAutomatically;
+    }
+    if ([self.keyInput isKindOfClass:[UITextView class]]) {
+        enabled = ((UITextView *)keyInput).enablesReturnKeyAutomatically;
+    }
+    return enabled;
+}
+
+- (BOOL)isInputEmpty {
+    // Get first responder.
+    id<UIKeyInput> keyInput = self.keyInput;
+
+    BOOL empty = YES;
+    if ([self.keyInput isKindOfClass:[UITextField class]]) {
+        empty = ![((UITextField *)keyInput).text length];
+    }
+    if ([self.keyInput isKindOfClass:[UITextView class]]) {
+        empty = ![((UITextView *)keyInput).text length];
+    }
+    return empty;
+}
+
 - (void)_handleHighlightGestureRecognizer:(UIPanGestureRecognizer *)gestureRecognizer {
     CGPoint point = [gestureRecognizer locationInView:self];
 
@@ -254,6 +281,7 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
     const NSInteger numberMax = MMNumberKeyboardButtonNumberMax;
 
     BOOL keyboardTypeCalculator = self.keyboardType == MMNumberKeyboardTypeCalculator;
+    BOOL enablesReturnKeyAutomatically = [self enablesReturnKeyAutomatically];
 
     // 0-9 numbers
     if (keyboardButton >= numberMin && keyboardButton < numberMax) {
@@ -272,6 +300,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
         } else {
             [keyInput insertText:string];
         }
+        if (enablesReturnKeyAutomatically) {
+            ((UIButton *)self.buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = YES;
+        }
     }
 
     // Handle backspace.
@@ -281,6 +312,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
             [self.delegate numberKeyboard:self didCalculateOperation:result];
         } else {
             [keyInput deleteBackward];
+        }
+        if (enablesReturnKeyAutomatically) {
+            ((UIButton *)self.buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = ![self isInputEmpty];
         }
     }
 
@@ -327,6 +361,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
             NSString *result = [self.calculatorProcessor clearAll];
             [delegate numberKeyboard:self didCalculateOperation:result];
         }
+        if (enablesReturnKeyAutomatically) {
+            ((UIButton *)self.buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = NO;
+        }
     }
 
     // Handle .
@@ -344,6 +381,9 @@ static const CGFloat MMNumberKeyboardPadSpacing = 8.0f;
             [delegate numberKeyboard:self didCalculateOperation:result];
         } else {
             [keyInput insertText:decimalText];
+        }
+        if (enablesReturnKeyAutomatically) {
+            ((UIButton *)self.buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = YES;
         }
     }
 }
@@ -516,6 +556,10 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     CGRect bounds = (CGRect){.size = self.bounds.size};
 
     NSDictionary *buttonDictionary = self.buttonDictionary;
+
+    if ([self enablesReturnKeyAutomatically] && [self isInputEmpty]) {
+        ((UIButton *)buttonDictionary[@(MMNumberKeyboardButtonDone)]).enabled = NO;
+    }
 
     // Settings.
     const UIUserInterfaceIdiom interfaceIdiom = UI_USER_INTERFACE_IDIOM();
@@ -868,10 +912,19 @@ NS_INLINE CGRect MMButtonRectMake(CGRect rect, CGRect contentRect, UIUserInterfa
     if (self.isHighlighted || self.isSelected) {
         self.backgroundColor = self.highlightedFillColor;
         self.imageView.tintColor = self.controlColor;
+    } else if (!self.isEnabled) {
+        self.backgroundColor = [UIColor colorWithRed:0.81f green:0.837f blue:0.86f alpha:1];
+        self.imageView.tintColor = [UIColor colorWithRed:0.81f green:0.837f blue:0.86f alpha:1];
     } else {
         self.backgroundColor = self.fillColor;
         self.imageView.tintColor = self.highlightedControlColor;
     }
+}
+
+- (void)setEnabled:(BOOL)enabled {
+    [super setEnabled:enabled];
+
+    [self _updateButtonAppearance];
 }
 
 - (void)setHighlighted:(BOOL)highlighted {
